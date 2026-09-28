@@ -1,0 +1,1 @@
+"""Balíček src.demo."""

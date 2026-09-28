@@ -1,0 +1,17 @@
+# Data a modely se necommitují (jsou velké) – jen struktura složek
+data/raw/*
+data/processed/*
+data/custom/*
+!data/**/.gitkeep
+models/*
+!models/.gitkeep
+*.pt
+*.onnx
+*.tflite
+
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.pytest_cache/
+.venv/
+runs/

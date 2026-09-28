@@ -1,0 +1,74 @@
+# =============================================================================
+#  MotorCam – hlavní konfigurace projektu
+#  Všechny cesty jsou relativní ke kořeni repozitáře (lze přepsat z příkazové řádky).
+#  Sekce pro pozdější fáze (fusion, curves, ...) jsou zde už teď, aby bylo vidět,
+#  co všechno se bude dát nastavit.
+# =============================================================================
+
+paths:
+  raw: data/raw                 # stažené archivy a rozbalená surová data
+  processed: data/processed     # data převedená do formátu pro trénink
+  custom: data/custom           # vlastní videa, snímky a anotace
+  models: models
+  results: results
+
+seed: 42
+
+# -----------------------------------------------------------------------------
+#  Fáze 1 – data
+# -----------------------------------------------------------------------------
+rdd2022:
+  base_url: https://bigdatacup.s3.ap-northeast-1.amazonaws.com/2022/CRDDC2022/RDD2022
+  # Výchozí výběr zemí (~2,4 GB). Norsko (9,9 GB) vynecháváme – velké fotky, jiný typ záběrů.
+  countries: [Czech, Japan, India, United_States, China_MotorBike]
+  # Převod tříd RDD2022 -> naše třídy detektoru. Třídy, které tu nejsou, se ignorují.
+  class_map:
+    D40: dira        # pothole – díra / výtluk
+    D00: trhlina     # podélná trhlina
+    D10: trhlina     # příčná trhlina
+    D20: trhlina     # síťové (aligátorové) trhliny
+  val_fraction: 0.15
+  min_box_px: 8                  # menší boxy (šum v anotacích) zahodíme
+
+detector:
+  classes: [dira, trhlina]       # pořadí = ID třídy v YOLO formátu
+  labels_cz: {dira: "díra", trhlina: "trhlina"}
+
+rscd:
+  # RSCD má 27 tříd typu "<tření>_<materiál>_<nerovnost>", např. dry_asphalt_smooth.
+  # Mapujeme je na našich 5 tříd povrchu. Sníh a led nepoužíváme (null = zahodit).
+  max_per_class: 6000            # RSCD má ~1 mil. snímků – pro Colab stačí podmnožina
+  val_fraction: 0.1
+  test_fraction: 0.1
+  slight_is_damaged: false       # "slight" nerovnost: false = asfalt, true = rozbitý asfalt
+
+surface:
+  classes: [asfalt, rozbity_asfalt, sterk, hlina_blato, mokro]
+  labels_cz:
+    asfalt: "asfalt"
+    rozbity_asfalt: "rozbitý asfalt"
+    sterk: "štěrk"
+    hlina_blato: "hlína / bláto"
+    mokro: "mokro"
+
+frames:
+  fps: 2.0                       # kolik snímků za sekundu vytáhnout z videa
+  blur_threshold: 60.0           # rozptyl Laplaciánu; menší = rozmazaný snímek -> přeskočit
+  dedup_threshold: 4             # Hammingova vzdálenost dHash; menší = téměř stejný snímek (stání)
+  max_side: 1280                 # delší strana ukládaného snímku (px)
+
+# -----------------------------------------------------------------------------
+#  Pozdější fáze (zatím jen výchozí hodnoty)
+# -----------------------------------------------------------------------------
+fusion:
+  window_s: 1.0                  # délka klouzavého okna pro vyhlazení
+  high_speed_kmh: 50             # štěrk nad touto rychlostí -> ČERVENÁ
+
+curves:
+  lookahead_m: 300               # jak daleko dopředu hledat zatáčky
+  radius_threshold_m: 150        # R pod touto hodnotou = zatáčka
+  lean_deg: 25                   # bezpečný náklon θ
+  lean_deg_low_grip: 15          # θ při štěrku / mokru
+  reaction_s: 1.0                # t_reakce
+  brake_mps2: 4.0                # a_brzd
+  margin_m: 20                   # rezerva

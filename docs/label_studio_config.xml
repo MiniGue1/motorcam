@@ -1,0 +1,32 @@
+<!--
+  Šablona projektu pro Label Studio (Settings → Labeling Interface → Code).
+  Jeden průchod snímkem = boxy kolem děr a trhlin + povrch celého snímku + podmínky.
+  Názvy "objekty", "povrch" a "podminky" čte skript src/dataset/import_annotations.py – neměnit.
+-->
+<View>
+  <Image name="image" value="$image" zoom="true" zoomControl="true" rotateControl="false"/>
+
+  <Header value="Objekty (tažením myši nakresli rámeček)"/>
+  <RectangleLabels name="objekty" toName="image" strokeWidth="2">
+    <Label value="díra" background="#e34948" hotkey="1"/>
+    <Label value="trhlina" background="#eda100" hotkey="2"/>
+  </RectangleLabels>
+
+  <Header value="Povrch silnice před motorkou (povinné)"/>
+  <Choices name="povrch" toName="image" choice="single-radio" showInline="true" required="true">
+    <Choice value="asfalt" hotkey="q"/>
+    <Choice value="rozbitý asfalt" hotkey="w"/>
+    <Choice value="štěrk" hotkey="e"/>
+    <Choice value="hlína / bláto" hotkey="r"/>
+    <Choice value="mokro" hotkey="t"/>
+  </Choices>
+
+  <Header value="Podmínky (pro analýzu chyb, volitelné)"/>
+  <Choices name="podminky" toName="image" choice="multiple" showInline="true">
+    <Choice value="stín"/>
+    <Choice value="noc"/>
+    <Choice value="rozmazané"/>
+    <Choice value="protisvětlo"/>
+    <Choice value="déšť"/>
+  </Choices>
+</View>

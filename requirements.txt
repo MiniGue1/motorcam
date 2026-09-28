@@ -1,0 +1,18 @@
+# Základ (fáze 1 – data)
+numpy>=1.24
+opencv-python-headless>=4.8
+pyyaml>=6.0
+requests>=2.31
+tqdm>=4.66
+pandas>=2.0
+matplotlib>=3.7
+gdown>=5.1          # stahování z Google Drive (RSCD)
+
+# Další fáze (Colab je má většinou předinstalované)
+# torch, torchvision  – model povrchu (fáze 2)
+# ultralytics         – YOLO detektor děr (fáze 3)
+# osmnx               – mapová data z OpenStreetMap (zatáčky)
+# moviepy             – zvuková stopa s pípáním (fáze 5)
+
+# Testy
+pytest>=7.4
