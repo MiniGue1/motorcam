@@ -62,7 +62,11 @@ frames:
 # -----------------------------------------------------------------------------
 fusion:
   window_s: 1.0                  # délka klouzavého okna pro vyhlazení
+  hold_s: 2.0                    # jak dlouho držet vyšší stupeň po zmizení příčiny (hystereze)
   high_speed_kmh: 50             # štěrk nad touto rychlostí -> ČERVENÁ
+  det_conf: 0.40                 # min. jistota detekce díry
+  surface_conf: 0.55             # min. jistota povrchu
+  vibration_baseline: 0.8        # RMS vibrací na hladkém asfaltu [m/s²] (kalibrace v aplikaci)
 
 curves:
   lookahead_m: 300               # jak daleko dopředu hledat zatáčky

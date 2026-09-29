@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 from typing import Any
 
@@ -16,7 +17,13 @@ def load_config(path: str | Path | None = None) -> dict[str, Any]:
     """Načte YAML konfiguraci. Bez argumentu použije configs/config.yaml."""
     path = Path(path) if path else DEFAULT_CONFIG
     with open(path, encoding="utf-8") as f:
-        return yaml.safe_load(f)
+        cfg = yaml.safe_load(f)
+    # přepis cest proměnnými prostředí, např. MOTORCAM_RESULTS=/tmp/vysledky (hodí se pro testy)
+    for key in cfg.get("paths", {}):
+        env = os.environ.get(f"MOTORCAM_{key.upper()}")
+        if env:
+            cfg["paths"][key] = env
+    return cfg
 
 
 def repo_path(relative: str | Path) -> Path:

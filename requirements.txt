@@ -1,4 +1,4 @@
-# Základ (fáze 1 – data)
+# Základ (data, fúze, grafy)
 numpy>=1.24
 opencv-python-headless>=4.8
 pyyaml>=6.0
@@ -6,13 +6,18 @@ requests>=2.31
 tqdm>=4.66
 pandas>=2.0
 matplotlib>=3.7
-gdown>=5.1          # stahování z Google Drive (RSCD)
+pillow>=10.0
+scikit-learn>=1.3
+gdown>=5.1          # stahování RSCD z Google Drive
+imageio-ffmpeg>=0.5 # ffmpeg pro zvukovou stopu v demo videu (bez instalace do systému)
 
-# Další fáze (Colab je má většinou předinstalované)
-# torch, torchvision  – model povrchu (fáze 2)
-# ultralytics         – YOLO detektor děr (fáze 3)
-# osmnx               – mapová data z OpenStreetMap (zatáčky)
-# moviepy             – zvuková stopa s pípáním (fáze 5)
+# Modely (Colab je má předinstalované)
+torch>=2.2
+torchvision>=0.17
+ultralytics>=8.3
+
+# Export do TFLite (jen notebook 05 / src/demo/export_tflite.py):
+#   pip install tensorflow-cpu onnx2tf onnxslim onnx_graphsurgeon sng4onnx tf_keras ai-edge-litert onnxruntime
 
 # Testy
 pytest>=7.4

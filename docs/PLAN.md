@@ -19,20 +19,22 @@ CSV senzorů ──► GPS rychlost, poloha ──┬─► map matching (OSM) �
 
 | # | Fáze | Výstupy | Kde |
 |---|---|---|---|
-| **1** | **Data** | stažení RDD2022/RSCD, převod do YOLO / ImageFolder, snímky z videí, postup anotace, grafy složení dat | `src/dataset/`, `docs/`, `notebooks/01_data.ipynb` |
-| 2 | Model povrchu | MobileNetV3-Small / EfficientNet-B0, augmentace (jas, stíny, motion blur, déšť), accuracy, F1 po třídách, confusion matrix | `src/models/surface.py`, `notebooks/02_surface.ipynb` |
-| 3 | Model děr | YOLO11n (ultralytics) na RDD2022 + vlastní data; mAP50, mAP50-95, P, R | `src/models/detector.py`, `notebooks/03_detector.ipynb` |
-| 4 | Rozhodovací logika | fúze modelů + GPS rychlosti, vyhlazení, hystereze; volitelně povrch z vibrací akcelerometru; **zatáčky z OSM** (map matching, poloměr R, v_max, brzdná dráha) | `src/fusion/` |
-| 5 | Demo | video s overlayem (boxy „díra 87 %“, povrch „štěrk 92 %“, panel rychlostí, kontrolka, minimapa, FPS), zvuková stopa s pípáním; export TFLite + test FPS | `src/demo/` |
-| 6 | Experimenty | veřejná data vs. doladěno na českých záběrech; analýza chyb (stíny, mokro, noc, rozmazání); graf rychlost / doporučená rychlost / varování | `notebooks/06_experiments.ipynb`, `results/` |
+| ✅ **1** | **Data** | stažení RDD2022/RSCD, převod do YOLO / ImageFolder, snímky z videí, postup anotace, grafy složení dat | `src/dataset/`, `docs/`, `notebooks/01_data.ipynb` |
+| ✅ 2 | Model povrchu | MobileNetV3-Small / EfficientNet-B0, augmentace (jas, stíny, motion blur, déšť), accuracy, F1 po třídách, confusion matrix | `src/models/surface.py`, `train_surface.py`, `notebooks/02_surface.ipynb` |
+| ✅ 3 | Model děr | YOLO11n (ultralytics) na RDD2022 + vlastní data; mAP50, mAP50-95, P, R | `src/models/detector.py`, `notebooks/03_detector.ipynb` |
+| ✅ 4 | Rozhodovací logika | fúze modelů + GPS rychlosti, vyhlazení, hystereze; volitelně povrch z vibrací akcelerometru; **zatáčky z OSM** (map matching, poloměr R, v_max, brzdná dráha) | `src/fusion/` |
+| ✅ 5 | Demo | video s overlayem (boxy „díra 87 %“, povrch „štěrk 92 %“, panel rychlostí, kontrolka, minimapa, FPS), zvuková stopa s pípáním; export TFLite + test FPS | `src/demo/` |
+| ✅ 6 | Experimenty | veřejná data vs. doladěno na českých záběrech; analýza chyb (stíny, mokro, noc, rozmazání); graf rychlost / doporučená rychlost / varování | `src/experiments/`, `notebooks/06_experiments.ipynb` |
 
-Po každé fázi se zastavíme na kontrolu.
+Navíc: **Android aplikace** (`android/`, `releases/MotorCam-0.1.apk`) – stejná logika běží
+živě v telefonu, modely se do ní nahrávají jako `.tflite`. Kód je hotový pro všechny fáze;
+zbývá natrénovat modely v Colabu a nasbírat/anotovat vlastní jízdy (✅ = kód hotový a otestovaný).
 
 ## Klíčová rozhodnutí
 
 * **Povrch se klasifikuje z výřezu spodní části snímku** (vozovka těsně před motorkou) –
   odpovídá to snímkům RSCD, které jsou jen výřezy povrchu.
-* **Detektor má 2 třídy: díra, trhlina.** Díra → červený rámeček, trhlina → oranžový.
+* **Detektor má 2 třídy: díra, trhlina.** Díra přímo před motorkou → červený rámeček, díra jinde → oranžový, trhlina → žlutý.
 * **Dělení dat po celých videích/jízdách**, aby testovací výsledky nebyly nadhodnocené.
 * **Model YOLO nano + MobileNetV3** – obojí zvládne mobil (TFLite) a trénink na free GPU.
 * **Kontrolka** (návrh pro fázi 4):
