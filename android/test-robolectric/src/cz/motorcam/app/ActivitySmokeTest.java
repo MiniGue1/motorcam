@@ -122,8 +122,16 @@ public class ActivitySmokeTest {
 
         // tlačítka
         List<Button> bs = buttons(a.getWindow().getDecorView(), new ArrayList<Button>());
-        assertEquals(3, bs.size());
-        Button rec = bs.get(0), sim = bs.get(1), menu = bs.get(2);
+        Button rec = null, sim = null, menu = null;
+        for (Button b : bs) {
+            String t = b.getText().toString();
+            if (t.equals("● REC")) rec = b;
+            else if (t.equals("SIM")) sim = b;
+            else if (t.equals("☰")) menu = b;
+        }
+        assertNotNull(rec);
+        assertNotNull(sim);
+        assertNotNull(menu);
 
         rec.performClick();
         run(0.5);

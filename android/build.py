@@ -123,16 +123,18 @@ def test() -> None:
         shutil.rmtree(out)
     out.mkdir(parents=True)
     cp = str(TOOLS / "android-all.jar")   # obsahuje i org.json, které má Android vestavěné
-    logic = ["Settings", "Geo", "RoadNetwork", "RoadPath", "Curves", "Detection", "Fusion", "Vibration"]
+    logic = ["Settings", "Geo", "RoadNetwork", "RoadPath", "Curves", "Detection", "Fusion", "Vibration",
+             "Route", "Curviness", "RouteFollower", "RoutingService", "RouteExport", "MapService"]
     srcs = [str(ROOT / "src/cz/motorcam/app" / f"{n}.java") for n in logic]
     srcs += [str(p) for p in (ROOT / "test").rglob("*.java")]
     run(["javac", "-encoding", "UTF-8", "-nowarn", "-cp", cp, "-d", str(out), *srcs])
-    res = subprocess.run(["java", "-Dstdout.encoding=UTF-8", "-cp", f"{out}:{cp}", "cz.motorcam.app.LogicTest"],
-                         capture_output=True, text=True)
-    print(res.stdout)
-    if res.returncode:
-        print(res.stderr)
-        raise SystemExit("Testy selhaly")
+    for cls, extra in [("LogicTest", []), ("RouteTest", [str(ROOT / "assets" / "trasy.json")])]:
+        res = subprocess.run(["java", "-Dstdout.encoding=UTF-8", "-cp", f"{out}:{cp}", f"cz.motorcam.app.{cls}", *extra],
+                             capture_output=True, text=True)
+        print(res.stdout)
+        if res.returncode:
+            print(res.stderr)
+            raise SystemExit(f"Testy {cls} selhaly")
 
 
 if __name__ == "__main__":

@@ -21,22 +21,24 @@ Vše zdarma: Python, PyTorch, ultralytics, OpenStreetMap, trénink na Google Col
 | 4. Rozhodovací logika + zatáčky | ✅ | `src/fusion/` (+ stejné v aplikaci) |
 | 5. Demo + TFLite | ✅ | `src/demo/`, `notebooks/05_demo_export.ipynb` |
 | 6. Experimenty | ✅ kód hotový, čeká na data | `src/experiments/`, `notebooks/06_experiments.ipynb` |
-| **Android aplikace** | ✅ APK 0.1 | `releases/MotorCam-0.1.apk`, `android/`, `docs/aplikace.md` |
+| **Android aplikace** | ✅ APK 0.2 | `releases/MotorCam-0.2.apk`, `android/`, `docs/aplikace.md` |
+| **Plánovač moto tras** | ✅ 7 tras Olomoucko + Jesenicko, vlastní trasy, zatáčkový režim | `android/assets/trasy.json`, `src/planner/` |
 
 **Natrénované modely zatím nejsou** – trénink potřebuje GPU a stažené datasety (Colab).
-Aplikace i bez nich umí zatáčky z mapy, pípání, povrch z vibrací, záznam jízdy a simulaci.
+Aplikace i bez nich umí zatáčky z mapy, pípání, povrch z vibrací, záznam jízdy, simulaci
+a **plánovač motorkářských tras** s předpřipravenými trasami po Olomoucku a Jesenicku.
 
 ## Rychlý start
 
 ### Telefon
-Nainstaluj `releases/MotorCam-0.1.apk` → viz [docs/aplikace.md](docs/aplikace.md).
+Nainstaluj `releases/MotorCam-0.2.apk` → viz [docs/aplikace.md](docs/aplikace.md).
 
 ### Počítač / Colab
 
 ```bash
 git clone <url> motorcam && cd motorcam
 pip install -r requirements.txt
-python -m pytest            # testy (34)
+python -m pytest            # testy (37)
 ```
 
 Na Colabu otevři notebooky v pořadí `01 → 02 → 03 → 05 → 06` (každý si repozitář naklonuje sám,
@@ -71,6 +73,7 @@ src/models/             model povrchu (+ augmentace), detektor YOLO, vyhodnocen�
 src/fusion/             OSM mapa, map matching, zatáčky, kontrolka, vibrace, načítání senzorů
 src/demo/               demo video (overlay, minimapa, pípání), export TFLite + rychlost
 src/experiments/        porovnání modelů, analýza chyb, graf rychlosti
+src/planner/            analýza motorkářských tras (zatáčkovitost, grafy z GPX)
 android/                aplikace (Java), vlastní build bez SDK, testy (JVM, Robolectric)
 releases/               hotové APK
 models/, results/       váhy a výstupy (grafy PNG+PDF, tabulky CSV) – necommitují se
@@ -93,6 +96,6 @@ Podrobně: [docs/PLAN.md](docs/PLAN.md).
 
 * **RDD2022** – Arya a kol., 2024, CC BY-SA 4.0 (figshare uvádí CC BY 4.0)
 * **RSCD** – Zhao a kol., 2022, CC BY-NC
-* **OpenStreetMap** – © přispěvatelé OpenStreetMap, ODbL
+* **OpenStreetMap** – © přispěvatelé OpenStreetMap, ODbL (silnice, router OSRM, vyhledávání Nominatim)
 
 Podrobnosti a citace: [docs/datasety.md](docs/datasety.md).

@@ -3,7 +3,7 @@
 # nespadne: start, GPS jízda k zatáčce, overlay, REC/STOP, simulace, menu, ukončení.
 # A vykreslení náhledu obrazovky do docs/img/aplikace_overlay.png.
 #
-# Použití (z kořene repozitáře, po `python android/build.py`):  bash android/test-robolectric/run.sh
+# Použití (z kořene repozitáře, po `python android/build.py` – test čte assets ze sestaveného APK):  bash android/test-robolectric/run.sh
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 A="$HERE/.."
@@ -17,8 +17,13 @@ J="$W/deps/android-all-instrumented-14-robolectric-10818077-i7.jar"
 ln -sf "$J" "$W/deps/android-all-instrumented-15-robolectric-12650502-i7.jar"
 AJ="$A/.tools/android-all.jar"
 javac -nowarn -d "$W/stubout" -cp "$AJ" $(find stubs -name '*.java')
+# stejný mechanismus, jakým Robolectric napojuje Gradle: skutečný manifest a assets aplikace
+mkdir -p "$W/stubout/com/android/tools"
+printf 'android_merged_manifest=%s\nandroid_merged_assets=%s\nandroid_resource_apk=%s\n' \
+    "$A/AndroidManifest.xml" "$A/assets" "$A/build/motorcam.apk" \
+    > "$W/stubout/com/android/tools/test_config.properties"
 CP="$W/out:$W/stubout:$(ls "$W"/libs/*.jar | tr '\n' ':')$A/.tools/tflite-classes.jar:$A/.tools/tflite-api-classes.jar:$AJ"
 javac -encoding UTF-8 -nowarn -d "$W/out" -cp "$CP" "$A"/src/cz/motorcam/app/*.java "$A"/test/cz/motorcam/app/LogicTest.java $(find src -name '*.java')
-java -Dstdout.encoding=UTF-8 -Dshot="$A/../docs/img/aplikace_overlay.png" -Drobolectric.offline=true \
+java -Dstdout.encoding=UTF-8 -Dshot="$A/../docs/img/aplikace_overlay.png" -Dshotdir="$A/../docs/img" -Drobolectric.offline=true \
      -Drobolectric.dependency.dir="$W/deps" -cp "$CP" org.junit.runner.JUnitCore \
-     cz.motorcam.app.ActivitySmokeTest cz.motorcam.app.ScreenshotTest
+     cz.motorcam.app.ActivitySmokeTest cz.motorcam.app.ScreenshotTest cz.motorcam.app.PlannerSmokeTest

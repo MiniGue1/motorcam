@@ -134,6 +134,14 @@ public class MainActivity extends Activity
     private int prevLamp;
     private long lastTickMs;
 
+    // naplánovaná trasa (PlannerActivity)
+    private RouteStore routeStore;
+    private Route activeRoute;
+    private String loadedRouteId;
+    private Geo routeGeo, followerGeo;
+    private RouteFollower follower;
+    private double simProgress = -1;
+
     // =====================================================================================
     //  Životní cyklus
     // =====================================================================================
@@ -151,6 +159,7 @@ public class MainActivity extends Activity
         beeper = new Beeper();
         beeper.muted = prefs.getBoolean("muted", false);
         maps = new MapService(getFilesDir());
+        routeStore = new RouteStore(this);
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
@@ -184,6 +193,7 @@ public class MainActivity extends Activity
     protected void onResume() {
         super.onResume();
         hideSystemBars();
+        loadActiveRoute();
         startHardware();
         if (!ticking) {
             ticking = true;
@@ -296,9 +306,17 @@ public class MainActivity extends Activity
         btnRec = makeButton("● REC");
         btnSim = makeButton("SIM");
         Button btnMenu = makeButton("☰");
+        Button btnRoutes = makeButton("TRASY");
         col.addView(btnRec);
         col.addView(btnSim);
+        col.addView(btnRoutes);
         col.addView(btnMenu);
+        btnRoutes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, PlannerActivity.class));
+            }
+        });
         FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(-2, -2, Gravity.START | Gravity.CENTER_VERTICAL);
         lp.leftMargin = dp(10);
         root.addView(col, lp);
@@ -399,6 +417,8 @@ public class MainActivity extends Activity
         m.add(0, 6, 0, "Znovu stáhnout mapu");
         m.add(0, 7, 0, beeper.muted ? "Zapnout zvuk" : "Vypnout zvuk");
         m.add(0, 8, 0, "Nápověda");
+        m.add(0, 9, 0, "Trasy pro motorkáře…");
+        if (activeRoute != null) m.add(0, 10, 0, "Ukončit vedení po trase");
         pm.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
@@ -414,6 +434,11 @@ public class MainActivity extends Activity
                         prefs.edit().putBoolean("muted", beeper.muted).apply();
                         break;
                     case 8: showHelp(); break;
+                    case 9: startActivity(new Intent(MainActivity.this, PlannerActivity.class)); break;
+                    case 10:
+                        routeStore.setActive(null);
+                        loadActiveRoute();
+                        break;
                     default: return false;
                 }
                 return true;
@@ -681,20 +706,42 @@ public class MainActivity extends Activity
             btnSim.setText("SIM");
             return;
         }
-        if (Double.isNaN(curLat)) {
+        if (Double.isNaN(curLat) && activeRoute == null) {
             toast("Simulace potřebuje aspoň přibližnou polohu – zapni polohu a počkej chvilku.");
             return;
         }
+        simProgress = -1;
         sim = true;
         simLat = curLat;
         simLon = curLon;
         simHeading = headingRad;
         btnSim.setText("■ SIM");
-        toast(String.format(Locale.US, "Simulace jízdy %.0f km/h po nejbližší silnici", settings.simSpeedKmh));
+        toast(String.format(Locale.US, activeRoute != null ? "Simulace jízdy %.0f km/h po trase " + activeRoute.name
+                : "Simulace jízdy %.0f km/h po nejbližší silnici", settings.simSpeedKmh));
     }
 
-    /** Posune simulovanou motorku po silnici o v·dt. */
+    /** Posune simulovanou motorku po silnici (nebo po naplánované trase) o v·dt. */
     private void stepSim(double dt) {
+        RouteFollower rf = followerFor(net != null ? net.geo : routeGeo);
+        if (rf != null) {
+            if (simProgress < 0) simProgress = rf.onRoute() ? rf.progressM : 0;   // mimo trasu -> od startu
+            simProgress += settings.simSpeedKmh / 3.6 * dt;
+            if (simProgress >= rf.totalM()) {
+                sim = false;
+                btnSim.setText("SIM");
+                toast("Simulace: cíl trasy");
+                return;
+            }
+            double[] p = rf.pointAt(simProgress);
+            curLat = rf.geo.lat(p[1]);
+            curLon = rf.geo.lon(p[0]);
+            simLat = curLat;
+            simLon = curLon;
+            simHeading = p[2];
+            headingRad = p[2];
+            speedKmh = settings.simSpeedKmh;
+            return;
+        }
         RoadNetwork n = net;
         if (n == null) return;
         double x = n.geo.x(simLon), y = n.geo.y(simLat);
@@ -877,20 +924,29 @@ public class MainActivity extends Activity
         path = null;
         radii = null;
         double px = 0, py = 0;
-        String curveStatus = mapStatus;
-        if (n != null && !Double.isNaN(curLat)) {
-            px = n.geo.x(curLon);
-            py = n.geo.y(curLat);
+        String curveStatus = mapStatus, routeInfo = null;
+        Geo frame = n != null ? n.geo : routeGeo;          // společné souřadnice pro mapu i trasu
+        RouteFollower rf = followerFor(frame);
+        if (frame != null && !Double.isNaN(curLat)) {
+            px = frame.x(curLon);
+            py = frame.y(curLat);
             if (!gpsOk) {
                 curveStatus = "Čekám na GPS…";
             } else if (Double.isNaN(headingRad)) {
                 curveStatus = "Čekám na směr jízdy…";
             } else {
-                RoadPath.Match m = RoadPath.match(n, px, py, headingRad, 40);
-                if (m == null) {
-                    curveStatus = "Mimo silnici v mapě";
+                if (rf != null && rf.update(px, py, headingRad)) {
+                    // naplánovaná trasa: víme přesně, kudy pojedeš
+                    path = rf.ahead(settings.lookaheadM + 40, 40, 5);
+                    routeInfo = rf.remainingM() < 60 ? activeRoute.name + " · CÍL"
+                            : String.format(Locale.US, "%s · do cíle %.0f km", activeRoute.name, rf.remainingM() / 1000);
                 } else {
-                    path = RoadPath.build(n, m, settings.lookaheadM + 40, 40, 5);
+                    if (rf != null) routeInfo = activeRoute.name + " · mimo trasu";
+                    RoadPath.Match m = n != null ? RoadPath.match(n, px, py, headingRad, 40) : null;
+                    if (m == null) curveStatus = n != null ? "Mimo silnici v mapě" : "Mimo trasu, mapa se načítá";
+                    else path = RoadPath.build(n, m, settings.lookaheadM + 40, 40, 5);
+                }
+                if (path != null) {
                     radii = Curves.radii(path, 3, 4);
                     List<Curves.Curve> curves = Curves.find(path, radii, settings.radiusThresholdM, n);
                     List<Curves.Curve> inRange = new ArrayList<>();
@@ -899,7 +955,7 @@ public class MainActivity extends Activity
                     advice = Curves.advise(inRange, v, fusion.lowGrip, settings);
                 }
             }
-            addTrail(n, px, py);
+            if (n != null) addTrail(n, px, py);
         }
 
         // --- rozhodovací logika ---
@@ -945,6 +1001,11 @@ public class MainActivity extends Activity
         s.mapStatus = curveStatus;
         s.net = n;
         s.path = path;
+        s.routeInfo = routeInfo;
+        if (rf != null) {
+            s.routeX = rf.xs();
+            s.routeY = rf.ys();
+        }
         s.radii = radii;
         s.posX = px;
         s.posY = py;
@@ -957,6 +1018,7 @@ public class MainActivity extends Activity
         StringBuilder st = new StringBuilder();
         st.append(sim ? "SIMULACE" : gpsOk ? String.format(Locale.US, "GPS ±%.0f m", gpsAccuracy) : "GPS: hledám");
         st.append(" · ").append(mapStatus);
+        if (routeInfo != null) st.append(" · ").append(routeInfo);
         st.append(" · díry: ").append(models.hasDetector() ? "model" : "—");
         st.append(" · povrch: ").append(models.hasSurface() ? "model" : "vibrace");
         if (models.hasDetector() || models.hasSurface()) st.append(String.format(Locale.US, " · %.1f FPS", mlFps));
@@ -991,4 +1053,31 @@ public class MainActivity extends Activity
     }
 
     private RoadNetwork lastTrailNet;
+
+    /** Načte trasu vybranou v plánovači (po návratu z PlannerActivity). */
+    private void loadActiveRoute() {
+        String id = routeStore.activeId();
+        if (id == null ? loadedRouteId == null : id.equals(loadedRouteId)) return;
+        loadedRouteId = id;
+        activeRoute = routeStore.find(id);
+        follower = null;
+        followerGeo = null;
+        routeGeo = null;
+        if (activeRoute != null && activeRoute.hasGeometry()) {
+            routeGeo = new Geo(activeRoute.lat[0], activeRoute.lon[0]);
+            toast("Vedení po trase: " + activeRoute.name);
+        } else {
+            activeRoute = null;
+        }
+    }
+
+    /** Sledování trasy v daných souřadnicích (při změně mapy se přepočítá). */
+    private RouteFollower followerFor(Geo g) {
+        if (activeRoute == null || g == null) return null;
+        if (follower == null || followerGeo != g) {
+            follower = new RouteFollower(g, activeRoute.lat, activeRoute.lon);
+            followerGeo = g;
+        }
+        return follower;
+    }
 }

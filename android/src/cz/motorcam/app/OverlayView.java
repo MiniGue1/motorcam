@@ -46,6 +46,8 @@ public final class OverlayView extends View {
         public int trailStart, trailLen;
         public Settings settings;
         public boolean lowGrip;
+        public double[] routeX, routeY;   // naplánovaná trasa (stejné souřadnice jako mapa)
+        public String routeInfo;           // „Trasa · do cíle 42 km“
     }
 
     private State st = new State();
@@ -162,10 +164,11 @@ public final class OverlayView extends View {
         int color = Color.WHITE;
         if (a == null) {
             l1 = st.mapStatus;
-            l2 = "";
+            l2 = st.routeInfo != null ? st.routeInfo : "";
         } else if (a.curve == null) {
             l1 = "Žádná ostrá zatáčka";
-            l2 = String.format(Locale.US, "v dalších %.0f m", st.settings != null ? st.settings.lookaheadM : 300);
+            l2 = st.routeInfo != null ? st.routeInfo
+                    : String.format(Locale.US, "v dalších %.0f m", st.settings != null ? st.settings.lookaheadM : 300);
         } else {
             l1 = a.distanceM <= 0 ? String.format(Locale.US, "V zatáčce  R %.0f m", a.curve.minR)
                     : String.format(Locale.US, "Zatáčka za %.0f m  R %.0f m %s", a.distanceM, a.curve.minR,
@@ -199,7 +202,7 @@ public final class OverlayView extends View {
         fill.setColor(Color.argb(170, 15, 23, 42));
         rect.set(left, top, left + size, top + size);
         c.drawRoundRect(rect, 12 * dp, 12 * dp, fill);
-        if (st.net == null) {
+        if (st.net == null && st.routeX == null) {
             text.setTextSize(12 * dp);
             text.setTextAlign(Paint.Align.CENTER);
             c.drawText("mapa", left + size / 2, top + size / 2, text);
@@ -222,10 +225,21 @@ public final class OverlayView extends View {
         line.setColor(Color.argb(140, 148, 163, 184));
         line.setStrokeWidth(2 * dp);
         RoadNetwork net = st.net;
-        for (RoadNetwork.Way way : net.ways) {
+        for (RoadNetwork.Way way : net != null ? net.ways : new java.util.ArrayList<RoadNetwork.Way>()) {
             int[] ns = way.nodes;
             for (int k = 0; k + 1 < ns.length; k++) {
                 double ax = net.nx[ns[k]], ay = net.ny[ns[k]], bx = net.nx[ns[k + 1]], by = net.ny[ns[k + 1]];
+                if (Math.abs(ax - st.posX) > reach && Math.abs(bx - st.posX) > reach) continue;
+                if (Math.abs(ay - st.posY) > reach && Math.abs(by - st.posY) > reach) continue;
+                c.drawLine(mx(ax, ay), my(ax, ay), mx(bx, by), my(bx, by), line);
+            }
+        }
+        // naplánovaná trasa (fialová)
+        if (st.routeX != null) {
+            line.setColor(Color.argb(200, 168, 85, 247));
+            line.setStrokeWidth(4 * dp);
+            for (int i = 1; i < st.routeX.length; i++) {
+                double ax = st.routeX[i - 1], ay = st.routeY[i - 1], bx = st.routeX[i], by = st.routeY[i];
                 if (Math.abs(ax - st.posX) > reach && Math.abs(bx - st.posX) > reach) continue;
                 if (Math.abs(ay - st.posY) > reach && Math.abs(by - st.posY) > reach) continue;
                 c.drawLine(mx(ax, ay), my(ax, ay), mx(bx, by), my(bx, by), line);

@@ -1,0 +1,108 @@
+{
+  "verze": 1,
+  "poznamka": "Předpřipravené motorkářské trasy – Olomoucko a Jesenicko. Body jsou středy obcí / sedla; silnice mezi nimi dopočítá router (OSRM) v aplikaci. Trasy nejsou ověřené v terénu – před jízdou zkontroluj uzavírky.",
+  "mista": {
+    "olomouc":        {"nazev": "Olomouc",                 "lat": 49.5938, "lon": 17.2509},
+    "velka_bystrice": {"nazev": "Velká Bystřice",          "lat": 49.5946, "lon": 17.3637},
+    "hlubocky":       {"nazev": "Hlubočky",                "lat": 49.6268, "lon": 17.4005},
+    "domasov":        {"nazev": "Domašov nad Bystřicí",    "lat": 49.7406, "lon": 17.4430},
+    "moravsky_beroun":{"nazev": "Moravský Beroun",         "lat": 49.7936, "lon": 17.4428},
+    "sternberk":      {"nazev": "Šternberk",               "lat": 49.7305, "lon": 17.2989},
+    "litovel":        {"nazev": "Litovel",                 "lat": 49.7012, "lon": 17.0761},
+    "bouzov":         {"nazev": "Hrad Bouzov",             "lat": 49.7043, "lon": 16.8917},
+    "javoricko":      {"nazev": "Javoříčko",               "lat": 49.6776, "lon": 16.8927},
+    "konice":         {"nazev": "Konice",                  "lat": 49.5890, "lon": 16.8890},
+    "namest":         {"nazev": "Náměšť na Hané",          "lat": 49.6025, "lon": 17.0655},
+    "mohelnice":      {"nazev": "Mohelnice",               "lat": 49.7770, "lon": 16.9195},
+    "sumperk":        {"nazev": "Šumperk",                 "lat": 49.9653, "lon": 16.9706},
+    "velke_losiny":   {"nazev": "Velké Losiny",            "lat": 50.0313, "lon": 17.0359},
+    "loucna":         {"nazev": "Loučná nad Desnou",       "lat": 50.0729, "lon": 17.0906},
+    "kouty":          {"nazev": "Kouty nad Desnou",        "lat": 50.1044, "lon": 17.1225},
+    "cervenohorske":  {"nazev": "Červenohorské sedlo",     "lat": 50.1300, "lon": 17.1556},
+    "jesenik":        {"nazev": "Jeseník",                 "lat": 50.2294, "lon": 17.2046},
+    "lipova":         {"nazev": "Lipová-lázně",            "lat": 50.2255, "lon": 17.1449},
+    "ramzova":        {"nazev": "Ramzovské sedlo",         "lat": 50.1817, "lon": 17.0600},
+    "ostruzna":       {"nazev": "Ostružná",                "lat": 50.1850, "lon": 17.0430},
+    "branna":         {"nazev": "Branná",                  "lat": 50.1489, "lon": 17.0039},
+    "hanusovice":     {"nazev": "Hanušovice",              "lat": 50.0806, "lon": 16.9364},
+    "stare_mesto":    {"nazev": "Staré Město",             "lat": 50.1614, "lon": 16.9475},
+    "dolni_morava":   {"nazev": "Dolní Morava",            "lat": 50.1219, "lon": 16.7998},
+    "kraliky":        {"nazev": "Králíky",                 "lat": 50.0836, "lon": 16.7606},
+    "cervena_voda":   {"nazev": "Červená Voda",            "lat": 50.0405, "lon": 16.7426},
+    "zulova":         {"nazev": "Žulová",                  "lat": 50.3093, "lon": 17.0989},
+    "javornik":       {"nazev": "Javorník",                "lat": 50.3931, "lon": 17.0028},
+    "vidnava":        {"nazev": "Vidnava",                 "lat": 50.3719, "lon": 17.1865},
+    "mikulovice":     {"nazev": "Mikulovice",              "lat": 50.2987, "lon": 17.3213},
+    "zlate_hory":     {"nazev": "Zlaté Hory",              "lat": 50.2639, "lon": 17.3960},
+    "vrbno":          {"nazev": "Vrbno pod Pradědem",      "lat": 50.1210, "lon": 17.3831},
+    "karlova_studanka":{"nazev": "Karlova Studánka",       "lat": 50.0729, "lon": 17.3035},
+    "mala_moravka":   {"nazev": "Malá Morávka",            "lat": 50.0226, "lon": 17.3183},
+    "rymarov":        {"nazev": "Rýmařov",                 "lat": 49.9318, "lon": 17.2717},
+    "bruntal":        {"nazev": "Bruntál",                 "lat": 49.9884, "lon": 17.4647}
+  },
+  "trasy": [
+    {
+      "id": "sedla_jeseniky",
+      "nazev": "Dvě sedla: Červenohorské a Ramzová",
+      "oblast": "Jesenicko",
+      "typ": "okruh",
+      "obtiznost": "střední",
+      "popis": "Klasický jesenický okruh ze Šumperka. Údolím Desné do Koutů, serpentinami přes Červenohorské sedlo (1013 m) do Jeseníku a zpět přes Ramzovské sedlo a Branou. Hodně zatáček, v sezóně o víkendu hodně motorkářů i aut.",
+      "body": ["sumperk", "velke_losiny", "loucna", "kouty", "cervenohorske", "jesenik", "lipova", "ramzova", "ostruzna", "branna", "hanusovice", "sumperk"]
+    },
+    {
+      "id": "olomouc_jesenik",
+      "nazev": "Z Olomouce do Jeseníků přes Karlovu Studánku",
+      "oblast": "Olomoucko → Jesenicko",
+      "typ": "tam",
+      "obtiznost": "střední",
+      "popis": "Přejezd z Olomouce na sever přes Šternberk, Moravský Beroun a Rýmařov do lázní Karlova Studánka, dál přes Vrbno pod Pradědem a Zlaté Hory do Jeseníku. Postupně z roviny do hor.",
+      "body": ["olomouc", "sternberk", "moravsky_beroun", "rymarov", "mala_moravka", "karlova_studanka", "vrbno", "zlate_hory", "jesenik"]
+    },
+    {
+      "id": "bouzov",
+      "nazev": "Bouzov a Javoříčko",
+      "oblast": "Olomoucko",
+      "typ": "okruh",
+      "obtiznost": "lehká",
+      "popis": "Kratší odpolední okruh z Olomouce k hradu Bouzov a Javoříčským jeskyním, zpět přes Konici a Náměšť na Hané. Klidnější okresky v kopcích Drahanské vrchoviny.",
+      "body": ["olomouc", "litovel", "bouzov", "javoricko", "konice", "namest", "olomouc"]
+    },
+    {
+      "id": "bystrice",
+      "nazev": "Údolím Bystřice",
+      "oblast": "Olomoucko",
+      "typ": "okruh",
+      "obtiznost": "lehká",
+      "popis": "Z Olomouce údolím řeky Bystřice přes Hlubočky a Domašov do Moravského Berouna a zpět přes Šternberk. Krátký okruh na večerní projížďku.",
+      "body": ["olomouc", "velka_bystrice", "hlubocky", "domasov", "moravsky_beroun", "sternberk", "olomouc"]
+    },
+    {
+      "id": "rychlebske",
+      "nazev": "Rychlebské hory a Javorník",
+      "oblast": "Jesenicko",
+      "typ": "okruh",
+      "obtiznost": "lehká",
+      "popis": "Okruh z Jeseníku do nejsevernější části kraje: Žulová, Javorník, Vidnava a zpět přes Mikulovice. Málo provozu, klidné silnice pod Rychlebskými horami.",
+      "body": ["jesenik", "zulova", "javornik", "vidnava", "mikulovice", "jesenik"]
+    },
+    {
+      "id": "snezniky",
+      "nazev": "Pod Kralickým Sněžníkem",
+      "oblast": "Šumpersko",
+      "typ": "okruh",
+      "obtiznost": "střední",
+      "popis": "Ze Šumperka přes Hanušovice a Staré Město do Dolní Moravy (Stezka v oblacích), přes Králíky a Červenou Vodu zpět. Horské údolí Moravy a kopcovité silnice u polských hranic.",
+      "body": ["sumperk", "hanusovice", "stare_mesto", "dolni_morava", "kraliky", "cervena_voda", "hanusovice", "sumperk"]
+    },
+    {
+      "id": "velky_okruh",
+      "nazev": "Velký jesenický okruh",
+      "oblast": "Olomoucko + Jesenicko",
+      "typ": "okruh",
+      "obtiznost": "náročná (celý den)",
+      "popis": "Celodenní okruh z Olomouce: Šternberk, Rýmařov, Karlova Studánka, Vrbno, Zlaté Hory, Jeseník, přes Červenohorské sedlo do Koutů a Šumperka a přes Mohelnici a Litovel zpět. Přes 250 km – počítej s tankováním.",
+      "body": ["olomouc", "sternberk", "rymarov", "karlova_studanka", "vrbno", "zlate_hory", "jesenik", "cervenohorske", "kouty", "sumperk", "mohelnice", "litovel", "olomouc"]
+    }
+  ]
+}

@@ -90,7 +90,7 @@ public final class Curves {
                     cur.minR = Math.abs(r[i]);
                     cur.apexS = p.s[i];
                 }
-                if (net != null && net.ways.get(p.way[i]).unpaved()) cur.unpaved = true;
+                if (net != null && p.way[i] >= 0 && net.ways.get(p.way[i]).unpaved()) cur.unpaved = true;
             } else if (cur != null) {
                 out.add(cur);
                 cur = null;

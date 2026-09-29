@@ -6,7 +6,7 @@
 
 ## Instalace
 
-1. Stáhni `releases/MotorCam-0.1.apk` do telefonu (Android 8.0 a novější).
+1. Stáhni `releases/MotorCam-0.2.apk` do telefonu (Android 8.0 a novější).
 2. Otevři ho a povol „Instalovat neznámé aplikace“ pro prohlížeč / správce souborů.
 3. Play Protect může upozornit na neznámého vývojáře – zvol *Přesto nainstalovat*
    (aplikace je podepsaná ladicím klíčem, ne přes Google Play).
@@ -24,6 +24,32 @@
 | Simulace (SIM) | motorka jede po okolních silnicích zvolenou rychlostí – test zatáček a pípání doma |
 
 Mapa se ukládá, takže v místě bez signálu funguje poslední stažená oblast.
+
+## Trasy pro motorkáře (tlačítko TRASY)
+
+| Plánovač | Detail trasy | Vlastní trasa |
+|---|---|---|
+| ![](img/planovac_seznam.png) | ![](img/planovac_detail.png) | ![](img/planovac_editor.png) |
+
+- **7 předpřipravených tras na Olomoucku a Jesenicku**: Dvě sedla (Červenohorské + Ramzová),
+  Z Olomouce do Jeseníků, Bouzov a Javoříčko, Údolím Bystřice, Rychlebské hory, Pod Kralickým
+  Sněžníkem a Velký jesenický okruh (~250 km). Definice jsou v `android/assets/trasy.json`
+  (průjezdní obce a sedla) – silnice mezi nimi při prvním otevření spočítá router **OSRM**
+  (data OpenStreetMap, zdarma) a trasa se uloží do telefonu.
+- **Vlastní trasa**: body z „Moje poloha“, vyhledávání (Nominatim/OSM) nebo z tipů v regionu;
+  volby *okruh*, *vyhnout se dálnicím* a **zatáčkový režim** – pro každý úsek si vyžádá alternativy
+  a vybere tu s nejvyšším skóre zatáčkovitosti.
+- **Zatáčkovitost 0–100** a počet zatáček (vracečky < 25 m, ostré < 60 m, střední < 150 m,
+  plynulé < 300 m) – stejný výpočet poloměrů jako varování před zatáčkami (`Curviness.java`).
+- **▶ Jet s MotorCam**: varování před zatáčkami sleduje naplánovanou trasu (na křižovatkách už
+  nehádá), minimapa ukazuje trasu fialově, panel „do cíle X km“. **SIM** pak jede přímo po trase.
+- **Mapy.cz / Google Maps**: otevře navigaci s průjezdními body (hlasová navigace zatáčku po
+  zatáčce), **GPX** uloží trasu do *Stažené/MotorCam* (import do Mapy.cz, Garmin, …).
+- Rozbor tras do práce: `python -m src.planner.routes analyze *.gpx` (tabulka + grafy zatáček).
+
+> Trasy nejsou projeté ani ověřené routerem při tvorbě (z vývojového prostředí nebyl router
+> dostupný) – body jsou středy obcí a sedel, silnice dopočítá router v telefonu. Před jízdou
+> zkontroluj uzavírky (např. sedla v zimě).
 
 ## Modely z kamery (díry, povrch)
 
@@ -68,6 +94,8 @@ Kód: `android/src/cz/motorcam/app/`. Čistá Java bez knihoven kromě TensorFlo
 | `RoadPath`, `Curves` | map matching, trasa dopředu, poloměry, doporučená rychlost, varování |
 | `Fusion`, `Vibration` | rozhodovací logika kontrolky, povrch z vibrací |
 | `Beeper`, `RideLogger`, `CrashHandler` | pípání, CSV záznam, uložení pádu aplikace |
+| `PlannerActivity`, `RouteMapView`, `RouteStore` | plánovač tras: seznam, detail s náhledem, editor, ukládání |
+| `Route`, `RoutingService`, `Curviness`, `RouteFollower`, `RouteExport` | trasy, router OSRM, zatáčkovitost, vedení po trase, GPX a odkazy |
 
 Stejné algoritmy jsou v Pythonu v `src/fusion/` (vyhodnocení, demo video) a testy ověřují,
 že obě verze dávají stejné výsledky.
