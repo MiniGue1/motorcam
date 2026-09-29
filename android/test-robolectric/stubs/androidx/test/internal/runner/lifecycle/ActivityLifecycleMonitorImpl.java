@@ -1,0 +1,5 @@
+package androidx.test.internal.runner.lifecycle; import androidx.test.runner.lifecycle.*; import java.util.*;
+public class ActivityLifecycleMonitorImpl implements ActivityLifecycleMonitor { final Map<android.app.Activity,Stage> st=new HashMap<>(); final List<ActivityLifecycleCallback> cb=new ArrayList<>();
+ public void addLifecycleCallback(ActivityLifecycleCallback c){cb.add(c);} public void removeLifecycleCallback(ActivityLifecycleCallback c){cb.remove(c);}
+ public Stage getLifecycleStageOf(android.app.Activity a){ return st.get(a);} public Collection<android.app.Activity> getActivitiesInStage(Stage s){ List<android.app.Activity> r=new ArrayList<>(); for(Map.Entry<android.app.Activity,Stage> e:st.entrySet()) if(e.getValue()==s) r.add(e.getKey()); return r;}
+ public void signalLifecycleChange(Stage s, android.app.Activity a){ st.put(a,s); for(ActivityLifecycleCallback c:new ArrayList<>(cb)) c.onActivityLifecycleChanged(a,s);} }
